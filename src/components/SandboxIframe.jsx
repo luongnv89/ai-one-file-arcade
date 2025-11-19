@@ -65,12 +65,13 @@ export default function SandboxIframe({ src, title, className = '', onError }) {
       <iframe
         src={src}
         title={title || 'Game'}
-        sandbox="allow-scripts allow-pointer-lock allow-fullscreen"
+        sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
         className="w-full h-full border-0 rounded-lg bg-white"
         onError={handleError}
         onLoad={handleLoad}
         allow="fullscreen; pointer-lock"
-        style={{ minHeight: '400px' }}
+        style={{ minHeight: '800px' }}
+        data-version="v1.3"
       />
 
       <div className="mt-2 text-xs text-gray-500 flex items-center gap-2">

@@ -1,17 +1,23 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GameCard from '../components/GameCard';
-import GameDetail from '../components/GameDetail';
 import Footer from '../components/Footer';
+import PWAInstallPrompt from '../components/PWAInstallPrompt';
+import AnalyticsDashboard from '../components/AnalyticsDashboard';
+import { trackSearch, trackFilterUsed, trackGamePlay } from '../services/analytics.js';
 
 /**
  * Gallery - Main gallery page displaying all games
  */
 export default function Gallery() {
+  const navigate = useNavigate();
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedGame, setSelectedGame] = useState(null);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('');
 
   useEffect(() => {
     loadGames();
@@ -38,56 +44,94 @@ export default function Gallery() {
   };
 
   const handleGameClick = (game) => {
-    setSelectedGame(game);
+    console.log('Game clicked:', game.slug);
+    trackGamePlay(game.slug);
+    console.log('Navigating to:', `/game/${game.slug}`);
+    navigate(`/game/${game.slug}`);
+    console.log('Navigate called');
   };
 
-  const handleBackToGallery = () => {
-    setSelectedGame(null);
-  };
-
-  // Filter games based on search query
+  // Filter games based on search query and filters
   const filteredGames = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return games;
-    }
-
-    const query = searchQuery.toLowerCase();
     return games.filter((game) => {
-      return (
+      // Search query filter
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = !query.trim() || (
         game.name.toLowerCase().includes(query) ||
         game.description.toLowerCase().includes(query) ||
         game.model.toLowerCase().includes(query) ||
         game.genre.toLowerCase().includes(query) ||
         (game.tags && game.tags.some((tag) => tag.toLowerCase().includes(query)))
       );
+
+      // Model filter
+      const matchesModel = !selectedModel || game.model === selectedModel;
+
+      // Genre filter
+      const matchesGenre = !selectedGenre || game.genre === selectedGenre;
+
+      // Difficulty filter
+      const matchesDifficulty = !selectedDifficulty || game.difficulty === selectedDifficulty;
+
+      return matchesSearch && matchesModel && matchesGenre && matchesDifficulty;
     });
-  }, [games, searchQuery]);
+  }, [games, searchQuery, selectedModel, selectedGenre, selectedDifficulty]);
 
   const handleClearSearch = () => {
     setSearchQuery('');
   };
 
-  if (selectedGame) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <button
-          onClick={handleBackToGallery}
-          className="mb-6 px-4 py-2 text-primary hover:text-primary-dark font-medium flex items-center gap-2 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          Back to Gallery
-        </button>
-        <GameDetail game={selectedGame} />
-      </div>
-    );
-  }
+  // Track search queries with debouncing
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const timeoutId = setTimeout(() => {
+        trackSearch(searchQuery.trim());
+      }, 500);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchQuery]);
+
+  const handleClearFilters = () => {
+    setSelectedModel('');
+    setSelectedGenre('');
+    setSelectedDifficulty('');
+  };
+
+  // Track filter usage
+  const handleModelFilter = (model) => {
+    setSelectedModel(model);
+    if (model) {
+      trackFilterUsed('model', model);
+    }
+  };
+
+  const handleGenreFilter = (genre) => {
+    setSelectedGenre(genre);
+    if (genre) {
+      trackFilterUsed('genre', genre);
+    }
+  };
+
+  const handleDifficultyFilter = (difficulty) => {
+    setSelectedDifficulty(difficulty);
+    if (difficulty) {
+      trackFilterUsed('difficulty', difficulty);
+    }
+  };
+
+  // Get unique values for filters
+  const availableModels = useMemo(() => {
+    return [...new Set(games.map((game) => game.model))].sort();
+  }, [games]);
+
+  const availableGenres = useMemo(() => {
+    return [...new Set(games.map((game) => game.genre))].sort();
+  }, [games]);
+
+  const availableDifficulties = useMemo(() => {
+    return [...new Set(games.map((game) => game.difficulty))].sort();
+  }, [games]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -177,30 +221,163 @@ export default function Gallery() {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-between">
-                <p className="text-gray-700">
-                  {searchQuery ? (
-                    <>
-                      Found <span className="font-semibold">{filteredGames.length}</span> of{' '}
-                      <span className="font-semibold">{games.length}</span> game
-                      {games.length !== 1 ? 's' : ''}
-                      {searchQuery && (
-                        <span className="ml-1">
-                          matching "<span className="font-medium">{searchQuery}</span>"
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      Showing <span className="font-semibold">{games.length}</span> game
-                      {games.length !== 1 ? 's' : ''}
-                    </>
+              {/* Filter Tags Section */}
+              <div className="mt-6 rounded-2xl border border-gray-200 bg-white/70 p-4 shadow-sm">
+                <div className="flex flex-col gap-4">
+                  {/* Model Filter */}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:w-32">
+                      AI Model
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={() => handleModelFilter('')}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                          !selectedModel
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        All Models
+                      </button>
+                      {availableModels.map((model) => (
+                        <button
+                          key={model}
+                          onClick={() => handleModelFilter(model)}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                            selectedModel === model
+                              ? 'bg-primary text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {model}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Genre Filter */}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:w-32">
+                      Genre
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={() => handleGenreFilter('')}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                          !selectedGenre
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        All Genres
+                      </button>
+                      {availableGenres.map((genre) => (
+                        <button
+                          key={genre}
+                          onClick={() => handleGenreFilter(genre)}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                            selectedGenre === genre
+                              ? 'bg-primary text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {genre}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Difficulty Filter */}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:w-32">
+                      Difficulty
+                    </h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        onClick={() => handleDifficultyFilter('')}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                          !selectedDifficulty
+                            ? 'bg-primary text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        All Levels
+                      </button>
+                      {availableDifficulties.map((difficulty) => (
+                        <button
+                          key={difficulty}
+                          onClick={() => handleDifficultyFilter(difficulty)}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                            selectedDifficulty === difficulty
+                              ? 'bg-primary text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {difficulty}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Clear Filters */}
+                  {(selectedModel || selectedGenre || selectedDifficulty) && (
+                    <div className="flex justify-end pt-2">
+                      <button
+                        onClick={handleClearFilters}
+                        className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
+                      >
+                        Clear all filters
+                      </button>
+                    </div>
                   )}
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-center justify-between">
+                <p className="text-gray-700">
+                  <>
+                    Found <span className="font-semibold">{filteredGames.length}</span> of{' '}
+                    <span className="font-semibold">{games.length}</span> game
+                    {games.length !== 1 ? 's' : ''}
+                    {(searchQuery || selectedModel || selectedGenre || selectedDifficulty) && (
+                      <span className="ml-1">
+                        matching your criteria
+                        {searchQuery && (
+                          <span className="ml-1">
+                            {searchQuery && <span>search"</span>}
+                            <span className="font-medium">"{searchQuery}"</span>
+                            {(selectedModel || selectedGenre || selectedDifficulty) ? ',' : ''}
+                          </span>
+                        )}
+                        {selectedModel && (
+                          <span className="ml-1">
+                            {(!searchQuery && selectedGenre) || (!searchQuery && !selectedGenre) ? '(' : ''}
+                            <span className="font-medium">{selectedModel}</span>
+                            {(selectedGenre || selectedDifficulty) ? ',' : ''}
+                          </span>
+                        )}
+                        {selectedGenre && (
+                          <span className="ml-1">
+                            <span className="font-medium">{selectedGenre}</span>
+                            {selectedDifficulty ? ',' : ''}
+                          </span>
+                        )}
+                        {selectedDifficulty && (
+                          <span className="ml-1">
+                            <span className="font-medium">{selectedDifficulty}</span>
+                          </span>
+                        )}
+                        <span className="ml-1">
+                          {(selectedModel || selectedGenre || selectedDifficulty) ? ')' : ''}
+                        </span>
+                      </span>
+                    )}
+                  </>
                 </p>
               </div>
             </div>
 
-            {filteredGames.length === 0 && searchQuery && (
+            {filteredGames.length === 0 && (searchQuery || selectedModel || selectedGenre || selectedDifficulty) && (
               <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400 mb-4"
@@ -216,7 +393,15 @@ export default function Gallery() {
                   />
                 </svg>
                 <p className="text-gray-700 text-lg mb-2">No games found</p>
-                <p className="text-gray-500">Try adjusting your search terms</p>
+                <p className="text-gray-500">Try adjusting your search terms or filters</p>
+                {(selectedModel || selectedGenre || selectedDifficulty) && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="mt-3 text-primary hover:text-primary-dark font-medium"
+                  >
+                    Clear all filters
+                  </button>
+                )}
               </div>
             )}
 
@@ -232,6 +417,12 @@ export default function Gallery() {
       </main>
 
       <Footer />
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
+
+      {/* Analytics Dashboard (Dev only) */}
+      <AnalyticsDashboard />
     </div>
   );
 }
