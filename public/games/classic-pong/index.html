@@ -95,6 +95,7 @@
             <p>First to <strong>5</strong> points wins!</p>
         </div>
         <button id="restartBtn" onclick="restartGame()" style="display: none;">Play Again</button>
+        <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
     </div>
 
     <script>
@@ -273,6 +274,19 @@
             drawBall();
 
             requestAnimationFrame(gameLoop);
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         }
 
         gameLoop();

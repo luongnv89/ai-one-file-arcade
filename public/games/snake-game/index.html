@@ -104,6 +104,7 @@
         <canvas id="gameCanvas" width="600" height="600"></canvas>
         <div id="gameOver">GAME OVER!</div>
         <button id="restartBtn" onclick="restartGame()">Play Again</button>
+        <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         <div class="controls">
             <p>Use arrow keys to move</p>
             <p>Eat the red food to grow</p>
@@ -238,6 +239,19 @@
                 direction = { x: 1, y: 0 };
             }
         });
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
 
         gameLoop();
     </script>

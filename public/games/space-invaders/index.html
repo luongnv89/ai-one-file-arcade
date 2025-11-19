@@ -148,6 +148,7 @@
         <div id="gameOver">GAME OVER!</div>
         <div id="win">YOU WIN! 🏆</div>
         <button id="restartBtn" onclick="restartGame()">Play Again</button>
+        <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
         <div id="controls">
             <p>← → Arrow keys to move | SPACE to shoot</p>
             <p>Destroy all invaders before they reach you!</p>
@@ -347,6 +348,19 @@
         document.addEventListener('keyup', (e) => {
             keys[e.key] = false;
         });
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
 
         createInvaders();
         gameLoop();

@@ -1,0 +1,6 @@
+# Placeholder for icon-512.png
+# In production, replace this with an actual PNG file
+# Required: 512x512 PNG image
+# You can generate these using:
+# -在线工具: https://realfavicongenerator.net/
+# -CLI工具: npm i -g @pwa-cli/pwa-generate-icons

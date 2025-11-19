@@ -219,6 +219,7 @@
             Time: <span id="finalTime">0</span> seconds
         </p>
         <button onclick="startNewGame()">Play Again</button>
+        <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
     </div>
 
     <script>
@@ -358,6 +359,19 @@
 
         function changeDifficulty() {
             startNewGame();
+        }
+
+        // Fullscreen functionality
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
         }
 
         startNewGame();
