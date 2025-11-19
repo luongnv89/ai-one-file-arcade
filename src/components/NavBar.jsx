@@ -4,6 +4,8 @@ import { Link, NavLink } from 'react-router-dom';
 export default function NavBar() {
   const navItems = [
     { label: 'Gallery', to: '/' },
+    { label: 'About', to: '/about' },
+    { label: 'Contribute', to: '/contribute' },
   ];
 
   return (

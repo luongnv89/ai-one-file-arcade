@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Gallery from './pages/Gallery';
 import GameDetail from './pages/GameDetail';
+import Contribute from './pages/Contribute';
+import About from './pages/About';
 import NavBar from './components/NavBar';
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Gallery />} />
             <Route path="/game/:slug" element={<GameDetail />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contribute" element={<Contribute />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

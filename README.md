@@ -19,6 +19,8 @@ A security-first showcase of AI-generated, single-HTML-file web games.
 
 AI One-File Arcade is an open-source, security-first showcase of AI-generated, single-HTML-file web games. It provides a transparent, educational, and contributor-friendly platform where all games are created by AI models using a single prompt, stored in a structured format, and displayed through a safe sandboxed interface.
 
+Visit the in-app [About page](http://localhost:5173/about) to learn more about the mission, security guarantees, and roadmap.
+
 ### ✨ Key Features
 
 - 🔐 **Security-First**: All games run in sandboxed iframes with strict security validation
@@ -157,7 +159,7 @@ one-prompt-one-single-file-game/
    - Open a PR with your game
    - CI will automatically validate your submission
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed instructions!
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed instructions! When running the app locally, open `http://localhost:5173/contribute` (also linked in the site nav) for an interactive, step-by-step contributor guide covering the full quality checklist.
 
 ## 🔒 Security
 
