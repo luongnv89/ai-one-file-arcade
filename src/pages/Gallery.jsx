@@ -133,16 +133,80 @@ export default function Gallery() {
     return [...new Set(games.map((game) => game.difficulty))].sort();
   }, [games]);
 
+  const heroStats = useMemo(() => {
+    const models = new Set(games.map((game) => game.model));
+    const genres = new Set(games.map((game) => game.genre));
+    return {
+      games: games.length,
+      models: models.size,
+      genres: genres.size,
+    };
+  }, [games]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">AI One-File Arcade</h1>
-          <p className="text-gray-700 text-lg">Explore AI-generated single-file games</p>
-        </div>
-      </header>
+      <main className="container mx-auto px-4 py-10">
+        <section className="relative mb-10 overflow-hidden rounded-3xl border border-gray-200 bg-white px-6 py-10 shadow-sm">
+          <div className="grid gap-10 md:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-gray-500">AI One-File Arcade</p>
+              <h1 className="mt-4 text-4xl font-bold leading-tight text-gray-900 sm:text-5xl">
+                One prompt. One file. A curated AI arcade.
+              </h1>
+              <p className="mt-4 text-lg text-gray-700">
+                Explore fully sandboxed AI-built micro games. Every title ships as a single HTML file, so you can inspect it,
+                trust it, and play it instantly.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 text-sm font-medium text-gray-700">
+                <span className="rounded-full bg-primary-lighter px-4 py-2 text-primary-dark">Sandbox security</span>
+                <span className="rounded-full bg-primary-lighter px-4 py-2 text-primary-dark">AI-only titles</span>
+                <span className="rounded-full bg-primary-lighter px-4 py-2 text-primary-dark">Manifest driven</span>
+              </div>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <a
+                  href="#games-list"
+                  className="rounded-full bg-primary bg-[#34D399] px-6 py-3 text-base font-semibold text-gray-900 shadow-sm transition-colors hover:bg-primary-dark hover:text-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+                >
+                  Browse games
+                </a>
+                <a
+                  href="https://github.com/luongnv89/one-prompt-one-single-file-game"
+                  className="rounded-full border border-gray-300 px-6 py-3 text-base font-semibold text-gray-900 transition-colors hover:border-primary hover:text-primary"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View GitHub
+                </a>
+              </div>
+            </div>
 
-      <main className="container mx-auto px-4 py-8">
+            <div className="rounded-2xl border border-gray-200 bg-primary-lighter/60 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.4em] text-primary-dark">Arcade snapshot</p>
+              <div className="mt-6 grid grid-cols-3 gap-4">
+                {[
+                  { label: 'Games', value: heroStats.games },
+                  { label: 'Models', value: heroStats.models },
+                  { label: 'Genres', value: heroStats.genres },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-2xl bg-white p-4 text-center shadow-sm">
+                    <p className="text-3xl font-bold text-gray-900">{stat.value || 0}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 rounded-xl bg-white p-4 text-sm text-gray-700 shadow-sm">
+                <p className="font-semibold text-gray-900">Why single-file?</p>
+                <p className="mt-2">
+                  Single HTML files keep games transparent, portable, and easy to audit—perfect for an AI-first arcade focused on safety.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full border border-primary/20"></div>
+          <div className="pointer-events-none absolute bottom-6 right-6 text-right text-xs uppercase tracking-[0.4em] text-gray-400">
+            Secure ✦ Minimal ✦ Playful
+          </div>
+        </section>
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -171,7 +235,7 @@ export default function Gallery() {
 
         {!loading && !error && games.length > 0 && (
           <>
-            <div className="mb-8">
+            <div id="games-list" className="mb-8">
               <div className="relative max-w-2xl mx-auto">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -222,115 +286,95 @@ export default function Gallery() {
               </div>
 
               {/* Filter Tags Section */}
-              <div className="mt-6 rounded-2xl border border-gray-200 bg-white/70 p-4 shadow-sm">
-                <div className="flex flex-col gap-4">
-                  {/* Model Filter */}
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:w-32">
-                      AI Model
-                    </h3>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        onClick={() => handleModelFilter('')}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                          !selectedModel
-                            ? 'bg-primary text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        All Models
-                      </button>
-                      {availableModels.map((model) => (
-                        <button
-                          key={model}
-                          onClick={() => handleModelFilter(model)}
-                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                            selectedModel === model
-                              ? 'bg-primary text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {model}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Genre Filter */}
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:w-32">
-                      Genre
-                    </h3>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        onClick={() => handleGenreFilter('')}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                          !selectedGenre
-                            ? 'bg-primary text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        All Genres
-                      </button>
-                      {availableGenres.map((genre) => (
-                        <button
-                          key={genre}
-                          onClick={() => handleGenreFilter(genre)}
-                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                            selectedGenre === genre
-                              ? 'bg-primary text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {genre}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Difficulty Filter */}
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 sm:w-32">
-                      Difficulty
-                    </h3>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        onClick={() => handleDifficultyFilter('')}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                          !selectedDifficulty
-                            ? 'bg-primary text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        All Levels
-                      </button>
-                      {availableDifficulties.map((difficulty) => (
-                        <button
-                          key={difficulty}
-                          onClick={() => handleDifficultyFilter(difficulty)}
-                          className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                            selectedDifficulty === difficulty
-                              ? 'bg-primary text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {difficulty}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Clear Filters */}
-                  {(selectedModel || selectedGenre || selectedDifficulty) && (
-                    <div className="flex justify-end pt-2">
-                      <button
-                        onClick={handleClearFilters}
-                        className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
-                      >
-                        Clear all filters
-                      </button>
-                    </div>
-                  )}
+              <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-gray-200 bg-white/80 p-4 shadow-sm">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">AI Model:</span>
+                  <button
+                    onClick={() => handleModelFilter('')}
+                    className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                      !selectedModel
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    All Models
+                  </button>
+                  {availableModels.map((model) => (
+                    <button
+                      key={model}
+                      onClick={() => handleModelFilter(model)}
+                      className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                        selectedModel === model
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {model}
+                    </button>
+                  ))}
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Genre:</span>
+                  <button
+                    onClick={() => handleGenreFilter('')}
+                    className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                      !selectedGenre
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    All Genres
+                  </button>
+                  {availableGenres.map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => handleGenreFilter(genre)}
+                      className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                        selectedGenre === genre
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Difficulty:</span>
+                  <button
+                    onClick={() => handleDifficultyFilter('')}
+                    className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                      !selectedDifficulty
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    All Levels
+                  </button>
+                  {availableDifficulties.map((difficulty) => (
+                    <button
+                      key={difficulty}
+                      onClick={() => handleDifficultyFilter(difficulty)}
+                      className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
+                        selectedDifficulty === difficulty
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {difficulty}
+                    </button>
+                  ))}
+                </div>
+                {(selectedModel || selectedGenre || selectedDifficulty) && (
+                  <div className="ml-auto">
+                    <button
+                      onClick={handleClearFilters}
+                      className="text-sm text-gray-600 hover:text-gray-900 underline underline-offset-2"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="mt-6 flex items-center justify-between">
