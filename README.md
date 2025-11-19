@@ -19,7 +19,7 @@ A security-first showcase of AI-generated, single-HTML-file web games.
 
 ## 🌟 What is AI One-File Arcade?
 
-AI One-File Arcade is an open-source, security-first showcase of AI-generated, single-HTML-file web games. It provides a transparent, educational, and contributor-friendly platform where all games are created by AI models using a single prompt, stored in a structured format, and displayed through a safe sandboxed interface.
+AI One-File Arcade is an open-source, security-first showcase of AI-generated, single-HTML-file web games. Now anyone can upload their AI-crafted one-file experiments—one-shot prompt runs or iterative builds alike—as long as the experience is AI-made and contained in a single HTML document. Each submission captures an `is_one_shot` flag so the community can tell whether it truly came from a single prompt.
 
 Visit the in-app [About page](http://localhost:5173/about) to learn more about the mission, security guarantees, and roadmap.
 
@@ -33,10 +33,11 @@ Visit the in-app [About page](http://localhost:5173/about) to learn more about t
 - 📱 **Responsive**: Works beautifully on desktop and mobile
 - 🚀 **Fast**: Built with Vite for lightning-fast performance
 - ✅ **Validated**: Automated security and schema validation for all submissions
+- 🏷️ **Upload-Friendly**: Drop in any AI-built single-file game and flag whether it was a one-shot or iterative build
 
 ## 🎯 Live Demo
 
-**Coming Soon**: The arcade is currently in active development. Follow the setup instructions below to run it locally!
+**Coming Soon**: The arcade is currently in active development. Follow the setup instructions below to run it locally or deploy to Netlify.
 
 ## 🚀 Getting Started
 
@@ -50,8 +51,8 @@ Visit the in-app [About page](http://localhost:5173/about) to learn more about t
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/luongnv89/one-prompt-one-single-file-game.git
-   cd one-prompt-one-single-file-game
+   git clone https://github.com/luongnv89/ai-one-file-arcade.git
+   cd ai-one-file-arcade
    ```
 
 2. **Install dependencies**
@@ -92,6 +93,7 @@ npm run check        # Run lint, format check, and build
 # Game Management
 npm run generate:manifest  # Regenerate games manifest
 npm run validate:games     # Validate all games for security
+npm run create:info -- <path>  # Scaffold info.json from a dropped index.html
 
 # Pre-commit hooks
 npm run prepare      # Setup Husky (done automatically on npm install)
@@ -100,14 +102,18 @@ npm run prepare      # Setup Husky (done automatically on npm install)
 ## 📁 Project Structure
 
 ```
-one-prompt-one-single-file-game/
+ai-one-file-arcade/
 ├── public/
 │   ├── games/              # All AI-generated games
 │   │   └── sample-game/
 │   │       ├── index.html  # Game file
 │   │       ├── info.json   # Game metadata
 │   │       └── prompt.md   # AI prompt used
-│   └── games-manifest.json # Auto-generated game list
+│   ├── games-manifest.json # Auto-generated game list
+│   ├── logo.svg            # Full wordmark logo
+│   ├── logo-mark.svg       # Icon-only logo (nav + favicon)
+│   ├── favicon.svg         # Primary favicon served via index.html
+│   └── default-thumbnail.png # Placeholder image for cards/details
 ├── src/
 │   ├── components/         # React components
 │   │   ├── GameCard.jsx
@@ -131,10 +137,6 @@ one-prompt-one-single-file-game/
 │   └── workflows/
 │       └── ci.yml          # GitHub Actions CI
 ├── devdocs/                # Documentation
-├── public/
-│   ├── logo.svg            # Full wordmark logo
-│   ├── logo-mark.svg       # Icon-only logo (also used for nav + favicon)
-│   └── favicon.svg         # Primary favicon served via index.html
 ├── CONTRIBUTING.md         # Contribution guidelines
 └── README.md
 ```
@@ -146,13 +148,35 @@ one-prompt-one-single-file-game/
 2. **Copy the template**
 
    ```bash
-   cp -r templates/game games/my-awesome-game
+   cp -r templates/game public/games/my-awesome-game
    ```
 
 3. **Create your AI-generated game**
-   - Edit `games/my-awesome-game/index.html` with your game
-   - Edit `games/my-awesome-game/info.json` with metadata
-   - Edit `games/my-awesome-game/prompt.md` with your AI prompt
+   - Edit `public/games/my-awesome-game/index.html` with your game
+   - Edit `public/games/my-awesome-game/info.json` with metadata
+   - Edit `public/games/my-awesome-game/prompt.md` with your AI prompt
+   - Dropped only an `index.html`? Run `npm run create:info -- public/games/my-awesome-game` to generate a valid `info.json` stub using your HTML title/description.
+   - Add a `thumbnail.png` (recommended 1200×675) inside your game folder so the gallery card has a unique screenshot. When omitted, the arcade falls back to `public/default-thumbnail.png`.
+  - Explicitly set `is_one_shot` to `true` if the HTML came from a single prompt, or `false` if you iterated/refined it.
+
+   **Optional metadata tags recognized by `create:info`:**
+
+   ```html
+   <meta name="ai-model" content="GPT-4o" />
+   <meta name="ai-genre" content="Arcade" />
+   <meta name="ai-difficulty" content="Medium" />
+   <meta name="ai-tags" content="arcade,retro,ai" />
+   <meta name="ai-author-name" content="Your Name" />
+   <meta name="ai-author-url" content="https://github.com/you" />
+   <meta name="ai-thumbnail" content="thumbnail.png" />
+   <meta name="ai-is-one-shot" content="true" />
+   <meta name="ai-controls-type" content="keyboard" />
+   <meta name="ai-controls-text" content="Arrow keys to move" />
+   <meta name="ai-duration" content="5 minutes" />
+   <meta name="ai-model-version" content="1.0.0" />
+   ```
+
+   Add the tags to your HTML head and the script will auto-populate those fields unless you override them with CLI flags.
 
 4. **Validate your game**
 
@@ -189,6 +213,8 @@ We welcome contributions! Please read:
 
 ### Game Requirements
 
+Only two hard constraints remain: every submission must be AI-generated and must live entirely inside a single HTML file. The checklist below keeps the arcade transparent, reviewable, and safe.
+
 Every game must be:
 
 1. ✅ AI-generated from a prompt
@@ -197,6 +223,8 @@ Every game must be:
 4. ✅ Include prompt.md with the AI prompt used
 5. ✅ Pass all security validations
 6. ✅ Be a complete, playable game
+7. ✅ Include a landscape thumbnail image (e.g., `thumbnail.png`) in your game folder so gallery cards showcase your game (fallback art auto-loads if missing)
+8. ✅ Set `is_one_shot` in `info.json` (and the optional meta tag) to indicate whether the experience truly came from a single prompt
 
 ### Development Workflow
 
@@ -222,6 +250,13 @@ Every game must be:
 - Firefox (latest 2 versions)
 - Safari (latest 2 versions)
 - Edge (latest 2 versions)
+
+## 🚢 Deployment (Netlify)
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+- SPA routing: handled via `netlify.toml` (`/*` → `/index.html`)
+- Service worker: `public/sw.js` uses a network-first strategy for HTML/manifest to avoid stale shells; swaps caches automatically. If you ever see an old UI, hard-reload or unregister the PWA to pick up the latest build.
 
 ## 📈 Roadmap
 
@@ -256,10 +291,10 @@ Every game must be:
 
 ## 📊 Stats
 
-![GitHub stars](https://img.shields.io/github/stars/luongnv89/one-prompt-one-single-file-game)
-![GitHub forks](https://img.shields.io/github/forks/luongnv89/one-prompt-one-single-file-game)
-![GitHub issues](https://img.shields.io/github/issues/luongnv89/one-prompt-one-single-file-game)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/luongnv89/one-prompt-one-single-file-game)
+![GitHub stars](https://img.shields.io/github/stars/luongnv89/ai-one-file-arcade)
+![GitHub forks](https://img.shields.io/github/forks/luongnv89/ai-one-file-arcade)
+![GitHub issues](https://img.shields.io/github/issues/luongnv89/ai-one-file-arcade)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/luongnv89/ai-one-file-arcade)
 
 ## 🙏 Acknowledgments
 
@@ -273,8 +308,8 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 ## 💬 Community
 
-- [GitHub Issues](https://github.com/luongnv89/one-prompt-one-single-file-game/issues) - Report bugs or request features
-- [GitHub Discussions](https://github.com/luongnv89/one-prompt-one-single-file-game/discussions) - Join the conversation
+- [GitHub Issues](https://github.com/luongnv89/ai-one-file-arcade/issues) - Report bugs or request features
+- [GitHub Discussions](https://github.com/luongnv89/ai-one-file-arcade/discussions) - Join the conversation
 - [Contributing Guide](./CONTRIBUTING.md) - How to contribute
 
 ---
@@ -283,6 +318,6 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ by the community**
 
-[Website](#) • [GitHub](https://github.com/luongnv89/one-prompt-one-single-file-game) • [Contribute](./CONTRIBUTING.md)
+[Website](#) • [GitHub](https://github.com/luongnv89/ai-one-file-arcade) • [Contribute](./CONTRIBUTING.md)
 
 </div>

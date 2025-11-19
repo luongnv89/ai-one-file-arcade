@@ -1,7 +1,7 @@
 {
-  "name": "one-prompt-one-single-file-game",
-  "version": "1.0.0",
-  "description": "One prompt to one single file game",
+  "name": "ai-one-file-arcade",
+  "version": "1.1.0",
+  "description": "Open arcade for AI-generated single-file games",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "generate:manifest": "node scripts/generate-manifest.js",
     "validate:games": "node scripts/validate-games.js",
+    "create:info": "node scripts/create-info-from-html.js",
     "lint": "eslint src --ext js,jsx",
     "lint:fix": "eslint src --ext js,jsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,css,md}\"",
@@ -28,15 +29,15 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/luongnv89/one-prompt-one-single-file-game.git"
+    "url": "git+https://github.com/luongnv89/ai-one-file-arcade.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/luongnv89/one-prompt-one-single-file-game/issues"
+    "url": "https://github.com/luongnv89/ai-one-file-arcade/issues"
   },
-  "homepage": "https://github.com/luongnv89/one-prompt-one-single-file-game#readme",
+  "homepage": "https://github.com/luongnv89/ai-one-file-arcade#readme",
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
     "react": "^19.2.0",
