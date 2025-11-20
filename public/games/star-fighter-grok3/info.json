@@ -1,13 +1,13 @@
 {
   "name": "STAR FIGHTER: ULTIMATE DOGFIGHT",
   "description": "Add a concise 1-2 sentence description of the game.",
-  "model": "unknown-model",
+  "model": "grok3",
   "version": "1.0.0",
   "author": {
-    "name": "",
+    "name": "Luong NGUYEN",
     "url": ""
   },
-  "tags": [],
+  "tags": ["space", "fighter", "arcade"],
   "genre": "Arcade",
   "difficulty": "Medium",
   "controls": {

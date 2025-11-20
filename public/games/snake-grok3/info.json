@@ -1,13 +1,13 @@
 {
   "name": "Snake Game",
   "description": "Add a concise 1-2 sentence description of the game.",
-  "model": "unknown-model",
+  "model": "grok3",
   "version": "1.0.0",
   "author": {
-    "name": "",
+    "name": "Luong NGUYEN",
     "url": ""
   },
-  "tags": [],
+  "tags": ["retro", "snake", "arcade"],
   "genre": "Arcade",
   "difficulty": "Medium",
   "controls": {
